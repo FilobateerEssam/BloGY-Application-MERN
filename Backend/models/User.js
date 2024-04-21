@@ -1,8 +1,12 @@
 // 1. Create a new table
 const mongoose = require("mongoose");
 
+// For Validation
+const Joi = require("joi");
 
-// 2. User Schema
+const jwt = require("jsonwebtoken");
+
+// 2. User Schema al validation in Data Level
 
 const UserSchema = new mongoose.Schema({
     username : {
@@ -49,11 +53,46 @@ const UserSchema = new mongoose.Schema({
 
 });
 
-// 3. User Model
+
+// 3. Generate Auth Token
+
+UserSchema.methods.generateAuthToken = function(){
+    return jwt.sign({id:this._id,isAdmin:this.isAdmin},process.env.JWT_SECRET);
+}
+
+
+// 4. User Model
 
 const User = mongoose.model("User",UserSchema);
 
-// 4. Export Model
+// validate Register User in Express Level
+
+function validateRegisterUser(obj){
+    const schema = Joi.object({
+        username: Joi.string().min(2).max(100).required(),
+        email: Joi.string().min(5).max(100).required().email(),
+        password: Joi.string().min(8).required(),
+    });
+
+    return schema.validate(obj);
+
+}
+
+
+function validateLoginUser(obj){
+    const schema = Joi.object({
+        email: Joi.string().min(5).max(100).required().email(),
+        password: Joi.string().min(8).required(),
+    });
+
+    return schema.validate(obj);
+
+}
+
+// 5. Export Model
 module.exports = {
-    User
+    User , 
+    validateRegisterUser , 
+    validateLoginUser ,
+
 };
