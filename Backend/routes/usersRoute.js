@@ -1,6 +1,6 @@
 const router = require('express').Router();
-const { getAllUsersCtrl, getUserProfileCtrl } = require('../controllers/usersController');
-const { verifyTokenAndAdmin } = require('../middlewares/verifyToken');
+const { getAllUsersCtrl, getUserProfileCtrl, UpdateUserProfileCtrl } = require('../controllers/usersController');
+const { verifyTokenAndAdmin, verifyTokenOnlyuser } = require('../middlewares/verifyToken');
 const {validateObjectId} = require('../middlewares/validateObjectId');
 
 // - in app -/in called in Route File
@@ -9,7 +9,9 @@ const {validateObjectId} = require('../middlewares/validateObjectId');
 router.route('/profile').get(verifyTokenAndAdmin ,getAllUsersCtrl);
 
 // api/users/profile/:id
-router.route('/profile/:id').get(validateObjectId,getUserProfileCtrl);
+router.route('/profile/:id')
+.get(validateObjectId,getUserProfileCtrl)
+.put(validateObjectId,verifyTokenOnlyuser,UpdateUserProfileCtrl)
 
 
 module.exports = router;
